@@ -13,6 +13,7 @@
 #include "FAMultiMapCA.h"
 #include "FASecurity.h"
 #include "FALimits.h"
+#include "BFendian.h"
 
 namespace BlingFire
 {
@@ -29,6 +30,8 @@ class FARSDfaCA;
 const int FASortUniq (int * pBegin, int * pEnd);
 
 /// returns true if the array is sorted
+/// This version assumes that data is already in native endianness
+/// and no additional byteswapping is needed
 template < class Ty >
 inline const bool FAIsSorted (const Ty * pArray, const int Size)
 {
@@ -45,6 +48,8 @@ inline const bool FAIsSorted (const Ty * pArray, const int Size)
 }
 
 /// returns true if the array is sorted and the elements are uniq
+/// This version assumes that data is already in native endianness
+/// and no additional byteswapping is needed
 template < class Ty >
 inline const bool FAIsSortUniqed (const Ty * pArray, const int Size)
 {
@@ -71,7 +76,7 @@ inline const int FAFind_linear (const Ty * pBegin, const int Size, const Ty Val)
 
         DebugLogAssert (pBegin);
 
-        if (Val == pBegin [i]) {
+        if (Val == bf_byteswap_helper::from_le(pBegin [i])) {
             return i;
         }
     }
@@ -88,7 +93,7 @@ inline const int FAFind_log (const Ty * pBegin, const int Size, const Ty Val)
     DebugLogAssert (0 <= Size);
 
     // this optimization is helpful for automata arc lookup.
-    if (Val >= 0 && (int)Val < Size && pBegin[Val] == Val)
+    if (Val >= 0 && (int)Val < Size && bf_byteswap_helper::from_le(pBegin[Val]) == Val)
     {
         return Val;
     }
@@ -103,7 +108,7 @@ inline const int FAFind_log (const Ty * pBegin, const int Size, const Ty Val)
         DebugLogAssert (pBegin);
 
         const int Pos = ((unsigned int)(To + From)) >> 1;
-        const Ty CurrVal = pBegin [Pos];
+        const Ty CurrVal = bf_byteswap_helper::from_le(pBegin [Pos]);
 
         if (Val == CurrVal) {
 
@@ -123,7 +128,7 @@ inline const int FAFind_log (const Ty * pBegin, const int Size, const Ty Val)
 
         DebugLogAssert (pBegin);
 
-        const Ty CurrVal = pBegin [From];
+        const Ty CurrVal = bf_byteswap_helper::from_le(pBegin [From]);
 
         if (Val > CurrVal)
             From++;
@@ -151,7 +156,7 @@ inline const int FAFindEqualOrLess_log (
 
     // this optimization is helpful for automata arc lookup.
 
-    if (Val >= 0 && (int)Val < Size && pBegin[Val] == Val)
+    if (Val >= 0 && (int)Val < Size && bf_byteswap_helper::from_le(pBegin[Val]) == Val)
     {
         return Val;
     }
@@ -166,7 +171,7 @@ inline const int FAFindEqualOrLess_log (
         DebugLogAssert (pBegin);
 
         const int Pos = ((unsigned int)(To + From)) >> 1;
-        const Ty CurrVal = pBegin [Pos];
+        const Ty CurrVal = bf_byteswap_helper::from_le(pBegin [Pos]);
 
         if (Val == CurrVal) {
 
@@ -186,7 +191,7 @@ inline const int FAFindEqualOrLess_log (
 
         DebugLogAssert (pBegin);
 
-        const Ty CurrVal = pBegin [From];
+        const Ty CurrVal = bf_byteswap_helper::from_le(pBegin [From]);
 
         if (Val == CurrVal)
             return From;

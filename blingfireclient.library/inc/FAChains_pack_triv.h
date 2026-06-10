@@ -11,6 +11,7 @@
 #include "FASetImageA.h"
 #include "FAUtils_cl.h"
 #include "FASecurity.h"
+#include "BFendian.h"
 
 namespace BlingFire
 {
@@ -111,7 +112,7 @@ inline const int FAChains_pack_triv::
     } else if (sizeof (short) == m_SizeOfValue) {
 
         // get the number of elements
-        Count = *(const short *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const short *)(m_pImage + Offset));
 
         if (NULL != pValues && MaxCount >= Count) {
             // get the pointer to the encoded elements
@@ -119,21 +120,29 @@ inline const int FAChains_pack_triv::
                 (const short *)(m_pImage + Offset + sizeof (short));
             // copy elements
             for (int i = 0; i < Count; ++i) {
-                const int Val = pEncodedVals [i];
+                const int Val = bf_byteswap_helper::from_le(pEncodedVals [i]);
                 pValues [i] = Val;
             }
         }
     } else {
 
         // get the number of elements
-        Count = *(const int *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const int *)(m_pImage + Offset));
 
         if (NULL != pValues && MaxCount >= Count) {
             // get the pointer to the encoded elements
             const int * pEncodedVals = 
                 (const int *)(m_pImage + Offset + sizeof (int));
+
             // copy elements
+#if defined(BF_LITTLE_ENDIAN)
             memcpy (pValues, pEncodedVals, sizeof (int) * Count);
+#else /* defined(BF_LITTLE_ENDIAN) */
+            for (int i = 0; i < Count; ++i) {
+                const int Val = bf_byteswap_helper::from_le(pEncodedVals [i]);
+                pValues [i] = Val;
+            }
+#endif /* defined(BF_LITTLE_ENDIAN) */
         }
     }
 
@@ -153,7 +162,7 @@ inline const int FAChains_pack_triv::
     }
 
     // get the number of elements
-    const int Count = *(const int *)(m_pImage + Offset);
+    const int Count = bf_byteswap_helper::from_le(*(const int *)(m_pImage + Offset));
     // get the pointer to the encoded elements
     const int * pEncodedVals = 
         (const int *)(m_pImage + Offset + sizeof (int));
@@ -194,27 +203,27 @@ inline const int FAChains_pack_triv::
     } else if (sizeof (short) == m_SizeOfValue) {
 
         // get the number of elements
-        Count = *(const short *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const short *)(m_pImage + Offset));
 
         if (Idx < Count) {
             // get the pointer to the encoded elements
             const short * pEncodedVals = 
                 (const short *)(m_pImage + Offset + sizeof (short));
             // return the value
-            const int Value = pEncodedVals [Idx];
+            const int Value = bf_byteswap_helper::from_le(pEncodedVals [Idx]);
             return Value;
         }
     } else {
 
         // get the number of elements
-        Count = *(const int *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const int *)(m_pImage + Offset));
 
         if (Idx < Count) {
             // get the pointer to the encoded elements
             const int * pEncodedVals = 
                 (const int *)(m_pImage + Offset + sizeof (int));
             // return the value
-            const int Value = pEncodedVals [Idx];
+            const int Value = bf_byteswap_helper::from_le(pEncodedVals [Idx]);
             return Value;
         }
     }
@@ -266,7 +275,7 @@ inline const int FAChains_pack_triv::
     } else if (sizeof (short) == m_SizeOfValue) {
 
         // get the number of elements
-        Count = *(const short *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const short *)(m_pImage + Offset));
 
         // get the pointer to the encoded elements
         const short * pEncodedVals = \
@@ -285,12 +294,12 @@ inline const int FAChains_pack_triv::
         if (0 > Idx)
             return -1;
 
-        const int FoundValue = pEncodedVals [Idx];
+        const int FoundValue = bf_byteswap_helper::from_le(pEncodedVals [Idx]);
         return FoundValue;
 
     } else {
         // get the number of elements
-        Count = *(const int *)(m_pImage + Offset);
+        Count = bf_byteswap_helper::from_le(*(const int *)(m_pImage + Offset));
 
         // get the pointer to the encoded elements
         const int * pEncodedVals = \
@@ -302,7 +311,7 @@ inline const int FAChains_pack_triv::
         if (0 > Idx)
             return -1;
 
-        const int FoundValue = pEncodedVals [Idx];
+        const int FoundValue = bf_byteswap_helper::from_le(pEncodedVals [Idx]);
         return FoundValue;
     }
 }

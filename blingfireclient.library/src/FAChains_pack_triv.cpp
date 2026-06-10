@@ -7,6 +7,7 @@
 #include "blingfire-client_src_pch.h"
 #include "FAConfig.h"
 #include "FAChains_pack_triv.h"
+#include "BFendian.h"
 
 namespace BlingFire
 {
@@ -24,8 +25,8 @@ void FAChains_pack_triv::SetImage (const unsigned char * pImage)
 
     if (m_pImage) {
 
-        m_SizeOfValue = *(const int *)m_pImage;
-        m_MaxCount = *(const int *)(m_pImage + sizeof (int));
+        m_SizeOfValue = bf_byteswap_helper::from_le(*(const int *)m_pImage);
+        m_MaxCount = bf_byteswap_helper::from_le(*(const int *)(m_pImage + sizeof (int)));
     }
 }
 
